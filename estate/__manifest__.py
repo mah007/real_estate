@@ -19,17 +19,22 @@ Real Estate App
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','mail'],
+    'depends': ['base','mail','product','board'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'security/security.xml',
         "views/estate_property_offer_views.xml",
         "views/estate_property_tag_views.xml",
         "views/estate_property_type_views.xml",
         "views/estate_property_views.xml",
         "views/res_users_views.xml",
         "views/estate_menus.xml",
+        "report/template.xml",
+        "report/report_doc.xml",
+        'views/res_settings.xml',
+        # "report/estate_report_views.xml",
     ],
     # only loaded in demonstration mode
     'demo': [

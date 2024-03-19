@@ -8,27 +8,43 @@ from odoo.tools import float_compare, float_is_zero
 
 
 class EstateProperty(models.Model):
-
     # ---------------------------------------- Private Attributes ---------------------------------
 
     _name = "estate.property"
-    _inherit = ['mail.thread.cc', 'mail.activity.mixin',]
+    _inherit = ['mail.thread.cc', 'mail.activity.mixin', ]
     _description = "Real Estate Property"
     _order = "id desc"
-
 
     # ---------------------------------------- Default Methods ------------------------------------
 
     def _default_date_availability(self):
         return fields.Date.context_today(self) + relativedelta(months=3)
 
+    def manager_1(self):
+        manager1 = self.env['ir.config_parameter'].sudo().get_param('estate.manager1')
+        return int(manager1)
+
+    def manager_2(self):
+        manager1 = self.env['ir.config_parameter'].sudo().get_param('estate.manager2')
+        return int(manager1)
+
+    def manager_3(self):
+        manager1 = self.env['ir.config_parameter'].sudo().get_param('estate.manager3')
+        return int(manager1)
+
+    def manager_4(self):
+        manager1 = self.env['ir.config_parameter'].sudo().get_param('estate.manager4')
+        return int(manager1)
+
     # --------------------------------------- Fields Declaration ----------------------------------
 
     # Basic
     name = fields.Char("Title", required=True)
+    image = fields.Image('Image')
     description = fields.Text("Description")
     postcode = fields.Char("Postcode")
-    date_availability = fields.Date("Available From", default=lambda self: self._default_date_availability(), copy=False)
+    date_availability = fields.Date("Available From", default=lambda self: self._default_date_availability(),
+                                    copy=False)
     expected_price = fields.Float("Expected Price", required=True)
     selling_price = fields.Float("Selling Price", copy=False, readonly=True)
     bedrooms = fields.Integer("Bedrooms", default=2)
@@ -46,6 +62,17 @@ class EstateProperty(models.Model):
         ],
         string="Garden Orientation",
     )
+    approval = fields.Selection([('draft', 'Draft'),
+                                 ('approved1', 'First Approval'),
+                                 ('approved2', 'Sec Approval'),
+                                 ('approved3', 'Third Approval'),
+                                 ('approved4', 'Forth Approval'),
+                                 ('reject', 'Rejected')],
+                                string="Approval",
+                                required=True,
+                                copy=False,
+                                default="draft",
+                                )
 
     # Special
     state = fields.Selection(
@@ -96,8 +123,9 @@ class EstateProperty(models.Model):
     def _check_price_difference(self):
         for prop in self:
             if (
-                not float_is_zero(prop.selling_price, precision_rounding=0.01)
-                and float_compare(prop.selling_price, prop.expected_price * 90.0 / 100.0, precision_rounding=0.01) < 0
+                    not float_is_zero(prop.selling_price, precision_rounding=0.01)
+                    and float_compare(prop.selling_price, prop.expected_price * 90.0 / 100.0,
+                                      precision_rounding=0.01) < 0
             ):
                 raise ValidationError(
                     "The selling price must be at least 90% of the expected price! "
@@ -130,4 +158,45 @@ class EstateProperty(models.Model):
     def action_cancel(self):
         if "sold" in self.mapped("state"):
             raise UserError("Sold properties cannot be canceled.")
-        return self.write({"state": "canceled"})
+        if self.env.user.has_group('estate.manager_user'):
+            return self.write({"state": "canceled"})
+        else:
+            raise UserError("You Must be A Manager to do this .")
+
+    def manager_approval_1(self):
+        print(self.env.user.id)
+        print(self.manager_1())
+        if self.env.user.id == self.manager_1():
+            print('approve1')
+            return self.write({"approval": "approved1"})
+        else:
+            raise UserError("You Must be A Manager to do this .")
+
+    def manager_approval_2(self):
+        if self.env.user.id == self.manager_2():
+            print('approve2')
+            return self.write({"approval": "approved2"})
+        else:
+            raise UserError("You Must be A broker to do this .")
+
+    def manager_approval_3(self):
+        if self.env.user.id == self.manager_3():
+            print('approve3')
+            return self.write({"approval": "approved3"})
+        else:
+            raise UserError("You Must be A Manager to do this .")
+
+    def manager_approval_4(self):
+        if self.env.user.id == self.manager_4():
+            print('approve4')
+            return self.write({"approval": "approved4"})
+        else:
+            raise UserError("You Must be A Manager to do this .")
+
+    def manager_reject(self):
+        if self.env.user.has_group('estate.manager_user'):
+            print('reject')
+
+            return self.write({"approval": "reject"})
+        else:
+            raise UserError("You Must be A Manager to do this .")

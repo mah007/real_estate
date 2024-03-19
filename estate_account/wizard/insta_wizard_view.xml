@@ -1,0 +1,35 @@
+<odoo>
+
+
+        <record id="insta_view_form_view" model="ir.ui.view">
+            <field name="name">insta.view.form</field>
+            <field name="model">estat.payment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Installment Plan">
+                    <sheet>
+                        <group>
+                            <field name="insta_periods"/>
+
+                        </group>
+                    </sheet>
+                    <footer>
+                    <button string="Create Invoices" name="action_sold_insta" type="object"  class="btn btn-primary"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" data-hotkey="x"/>
+
+                    </footer>
+                </form>
+
+            </field>
+        </record>
+
+        <record id="insta_wizard_action" model="ir.actions.act_window">
+            <field name="name">Create your installment plan</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">estat.payment.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+
+</odoo>

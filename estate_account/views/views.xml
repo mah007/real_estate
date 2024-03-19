@@ -1,0 +1,20 @@
+<odoo>
+  <data>
+
+    <!-- Inherit Form View to Modify it -->
+    <record id="insta_estate_inherit" model="ir.ui.view">
+        <field name="name">insta.button.inherit</field>
+        <field name="model">estate.property</field>
+        <field name="inherit_id" ref="estate.estate_property_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//button[@name='action_sold']" position="replace">
+            <button name="%(estate_account.insta_wizard_action)d" type="action" string="Sold" invisible="state in ('new','sold') or approval not in ('draft','approved')"/>
+
+            </xpath>
+
+        </field>
+    </record>
+
+  </data>
+</odoo>
